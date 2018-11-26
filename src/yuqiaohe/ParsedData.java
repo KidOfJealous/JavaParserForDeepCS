@@ -29,17 +29,21 @@ public class ParsedData {
     }
     private void Process(Node cu,int level)
     {
-        System.out.println(cu.getClass().getSimpleName()+":"+cu.toString());
+        System.out.println("level:"+level+":"+cu.getClass().getSimpleName()+":"+cu.toString());
         if(cu instanceof JavadocComment)return;
         //cu.removeComment();
+        if(cu instanceof MethodCallExpr)
+        {
+            ApiSeq.add(((MethodCallExpr) cu).getNameAsString());
+        }
         if(cu.getChildNodes().size()>0)
         {
             for(Node i:cu.getChildNodes())Process(i,level+1);
         }
-        /*else
+        else
         {
             addTokens(cu.toString());
-        }*/
+        }
     }
     private void addTokens(String s) {
         int start = 0;
@@ -53,7 +57,7 @@ public class ParsedData {
                 sb.append(s.charAt(end));
                 end++;
             }
-            Tokens.put(sb.toString(),"1");
+            if(sb.length()>1)Tokens.put(sb.toString(),"1");
             if (end < l) {
                 start = end;
             } else break;
@@ -68,12 +72,21 @@ public class ParsedData {
                 super.visit(n, arg);
                 String methodName = n.getNameAsString();
                 String[] docs = n.getJavadocComment().toString().split("\n");
-                //if(docs.length<2)return;
+                if(docs.length<2)return;
                 System.out.println("MethodName:" + n.getName());
                 //System.out.println("MethodDes:" + n.getJavadocComment().toString().split("\n")[0]);
-                n.removeComment();
+                //n.removeComment();
                 Process(n,0);
-                System.out.println(Tokens);
+                String[] declarations = docs[1].split("\\*");
+                if(declarations.length<2)return;
+                String declaration = declarations[1];
+                //for(String i:docs)System.out.println(i);
+                System.out.println("Tokens:"+Tokens.keySet());
+                System.out.println("ApiSequence:"+ApiSeq);
+                System.out.println("Declaration:"+declaration);
+                //CompilationUnit cu = JavaParser.parse(n.toString());
+                //cu.accept(new method)
+                super.visit(n, arg);
             }
         };
         innerParser = new VoidVisitorAdapter<Object>() {

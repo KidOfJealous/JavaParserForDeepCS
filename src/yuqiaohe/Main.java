@@ -12,12 +12,45 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.metamodel.AnnotationExprMetaModel;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Main {
         public static void main(String[] args) {
+            try {
+                File Filedirs = new File("1.txt");
+                String[] filedirs = new String[10000];
+                int line = 0;
+                String temp = null;
+                BufferedReader reader = new BufferedReader(new FileReader(Filedirs));
+                while ((temp = reader.readLine()) != null) {
+                    filedirs[line++] = temp;
+                }
+                reader.close();
+                for (int i = 0; i < line; ++i) {
+                    String pathToAppSourceCode = filedirs[i];
+                    System.out.println("parse start:" + i);
+                    try {
+                        ArrayList packages = ReadingObjects.readSourceCode(pathToAppSourceCode);
+                        //System.out.println("sourcecode finished");
+                        Iterator var5 = packages.iterator();
+                        //System.out.println("prework finished");
+                        while (var5.hasNext()) {
+                            PackageBean packageBean = (PackageBean) var5.next();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }catch (IOException ex){ex.printStackTrace();}
             String s = "package yuqiaohe;\n" +
                     "\n" +
                     "import java.util.Calendar;\n" +
@@ -45,5 +78,6 @@ public class Main {
             ParsedData pd = new ParsedData();
             pd.Parse(s);
         }
+        public void findjava()
 
 };
