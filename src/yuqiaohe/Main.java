@@ -13,10 +13,7 @@ import com.github.javaparser.metamodel.AnnotationExprMetaModel;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -36,48 +33,98 @@ public class Main {
                 }
                 reader.close();
                 for (int i = 0; i < line; ++i) {
+                    //System.out.println("parse "+i+"start:");
                     String pathToAppSourceCode = filedirs[i];
                     System.out.println("parse start:" + i);
-                    try {
-                        ArrayList packages = ReadingObjects.readSourceCode(pathToAppSourceCode);
-                        //System.out.println("sourcecode finished");
-                        Iterator var5 = packages.iterator();
-                        //System.out.println("prework finished");
-                        while (var5.hasNext()) {
-                            PackageBean packageBean = (PackageBean) var5.next();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    getAllJavaFilePaths(new File(pathToAppSourceCode));
+                    ParsedData.WriteInFile();
                 }
             }catch (IOException ex){ex.printStackTrace();}
-            String s = "package yuqiaohe;\n" +
+            String s = "package com.example.bottombar.sample;\n" +
                     "\n" +
-                    "import java.util.Calendar;\n" +
-                    "import java.util.Date;\n" +
+                    "import android.os.Bundle;\n" +
+                    "import android.support.annotation.IdRes;\n" +
+                    "import android.support.annotation.Nullable;\n" +
+                    "import android.support.v7.app.AppCompatActivity;\n" +
+                    "import android.widget.TextView;\n" +
+                    "import android.widget.Toast;\n" +
                     "\n" +
-                    "public class Main {\n" +
+                    "import com.roughike.bottombar.BottomBar;\n" +
+                    "import com.roughike.bottombar.BottomBarTab;\n" +
+                    "import com.roughike.bottombar.OnTabReselectListener;\n" +
+                    "import com.roughike.bottombar.OnTabSelectListener;\n" +
                     "\n" +
-                    "    public static void main(String[] args) {\n" +
-                    "\t// write your code here\n" +
+                    "/**\n" +
+                    " * Created by iiro on 7.6.2016.\n" +
+                    " */\n" +
+                    "public class BadgeActivity extends AppCompatActivity {\n" +
+                    "    private TextView messageView;\n" +
                     "\n" +
-                    "    }\n" +
-                    "    /**\n" +
-                    "     * Converts a Date into a Calendar.\n" +
-                    "     * @param date the date to convert to a Calendar\n" +
-                    "     * @return the created Calendar\n" +
-                    "     * @throws NullPointerException if null is passed in\n" +
-                    "     * @since 3.0\n" +
-                    "     */\n" +
-                    "    public static Calendar toCalendar(final Date date) {\n" +
-                    "        final Calendar c = Calendar.getInstance();\n" +
-                    "        c.setTime(date);\n" +
-                    "        return c;\n" +
+                    "    @Override\n" +
+                    "    protected void onCreate(@Nullable Bundle savedInstanceState) {\n" +
+                    "        super.onCreate(savedInstanceState);\n" +
+                    "        setContentView(R.layout.activity_three_tabs);\n" +
+                    "\n" +
+                    "        messageView = (TextView) findViewById(R.id.messageView);\n" +
+                    "\n" +
+                    "        final BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);\n" +
+                    "        bottomBar.setOnTabSelectListener(new OnTabSelectListener() {\n" +
+                    "            @Override\n" +
+                    "            public void onTabSelected(@IdRes int tabId) {\n" +
+                    "                messageView.setText(TabMessage.get(tabId, false));\n" +
+                    "            }\n" +
+                    "        });\n" +
+                    "\n" +
+                    "        bottomBar.setOnTabReselectListener(new OnTabReselectListener() {\n" +
+                    "            @Override\n" +
+                    "            public void onTabReSelected(@IdRes int tabId) {\n" +
+                    "                Toast.makeText(getApplicationContext(), TabMessage.get(tabId, true), Toast.LENGTH_LONG).show();\n" +
+                    "            }\n" +
+                    "        });\n" +
+                    "\n" +
+                    "        BottomBarTab nearby = bottomBar.getTabWithId(R.id.tab_nearby);\n" +
+                    "        nearby.setBadgeCount(5);\n" +
                     "    }\n" +
                     "}";
-            ParsedData pd = new ParsedData();
-            pd.Parse(s);
+            //ParsedData pd = new ParsedData();
+            //pd.Parse(s);
         }
-        public void findjava()
+        private static void getAllJavaFilePaths(File srcFolder) {
+            File[] fileArray = srcFolder.listFiles();
+            if(fileArray==null)return;
+            for (File file : fileArray) {
+                if (file.isDirectory()) {
+                    getAllJavaFilePaths(file);
+                } else {
+                    if (file.getName().endsWith(".java")) {
+                        ParsedData dt = new ParsedData();
+                        dt.Parse(readToString(file));
+                        System.out.println(" "+file.getName()+" parsed");
+                    }
+                }
+            }
+        }
+        private static String readToString(File file) {
+            String encoding = "UTF-8";
+            //File file = new File(fileName);
+            Long filelength = file.length();
+            byte[] filecontent = new byte[filelength.intValue()];
+            try {
+                FileInputStream in = new FileInputStream(file);
+                in.read(filecontent);
+                in.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                return new String(filecontent, encoding);
+            } catch (UnsupportedEncodingException e) {
+                System.err.println("The OS does not support " + encoding);
+                e.printStackTrace();
+                return null;
+            }
+        }
 
 };

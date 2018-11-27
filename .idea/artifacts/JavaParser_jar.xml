@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="JavaParser:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/JavaParser_jar</output-path>
+    <root id="archive" name="JavaParser.jar">
+      <element id="module-output" name="Parser" />
+      <element id="module-output" name="JavaParser" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/javaparser/javaparser-core/3.6.12/javaparser-core-3.6.12.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
